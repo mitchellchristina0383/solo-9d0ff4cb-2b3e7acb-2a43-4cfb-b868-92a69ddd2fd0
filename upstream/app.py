@@ -75,6 +75,24 @@ async def echo(request: Request) -> dict:
     }
 
 
+@app.get("/same")
+async def same(request: Request) -> dict:
+    """与节点身份、请求头均无关的稳定响应：任意健康节点返回字节一致，供影子核对验证 same。
+
+    刻意不回显 X-Shadow-Compare，否则影子响应会携带核对编号而与主响应天然不同。
+    另支持 shadow_delay 查询参数：仅对带 X-Shadow-Compare 头的影子请求延迟，
+    用于确定性地制造「影子超时」场景（主请求不带该头，不受影响）。
+    """
+    delay = float(request.query_params.get("shadow_delay", "0") or 0)
+    if delay > 0 and request.headers.get("x-shadow-compare"):
+        await asyncio.sleep(delay)
+    return {
+        "path": "/same",
+        "query_params": dict(request.query_params),
+        "ok": True,
+    }
+
+
 @app.get("/slow")
 async def slow(seconds: float = Query(2.0, ge=0, le=60)) -> JSONResponse:
     """慢请求：用于验证排空期间在途请求不被截断。"""

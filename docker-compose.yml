@@ -34,6 +34,9 @@ services:
       PROBE_TIMEOUT: "1.5"
       REQUEST_TIMEOUT: "15"
       DRAIN_DEFAULT_TIMEOUT: "30"
+      # 影子核对配置
+      COMPARE_TIMEOUT: "15"
+      COMPARE_MAX_RECORDS: "100"
     ports:
       - "18080:8000"
     depends_on:
